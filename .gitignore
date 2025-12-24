@@ -173,3 +173,5 @@ slurm
 
 *.ipynb
 gty*
+
+slurm_outputs/

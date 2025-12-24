@@ -28,6 +28,12 @@ def parse_arguments():
     parser.add_argument("--datasets", type=str, default=None, help="comma separated list of dataset names")
     parser.add_argument("--demo_files", type=str, default=None, help="comma separated list of demo files")
     parser.add_argument("--test_files", type=str, default=None, help="comma separated list of test files")
+    parser.add_argument(
+        "--data_root",
+        type=str,
+        default=None,
+        help="If set, prepend this directory to relative --test_files/--demo_files paths (absolute paths are left unchanged).",
+    )
     parser.add_argument("--output_dir", type=str, default=None, help="path to save the predictions")
     parser.add_argument("--overwrite", action="store_true", help="whether to the saved file")
     parser.add_argument("--max_test_samples", type=int, default=None)
@@ -46,7 +52,17 @@ def parse_arguments():
     parser.add_argument("--generation_min_length", type=int, default=0, help="min number of tokens to generate")
     parser.add_argument("--temperature", type=float, default=0.0, help="generation temperature")
     parser.add_argument("--top_p", type=float, default=1.0, help="top-p parameter for nucleus sampling")
-    parser.add_argument("--stop_new_line", type=ast.literal_eval, choices=[True, False], default=False, help="whether to stop generation at newline")
+    # Accept both spellings for backwards compatibility.
+    # Canonical attribute name is `stop_new_line` to match YAML configs.
+    parser.add_argument(
+        "--stop_new_line",
+        "--stop_newline",
+        dest="stop_new_line",
+        type=ast.literal_eval,
+        choices=[True, False],
+        default=False,
+        help="whether to stop generation at newline",
+    )
     parser.add_argument("--system_message", type=str, default=None, help="system message to add to the beginning of context")
 
     # model specific settings

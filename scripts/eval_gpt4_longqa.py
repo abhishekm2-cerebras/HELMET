@@ -104,12 +104,13 @@ def check_metrics(model, results_file, output_file):
     return results
 
 if __name__ == "__main__":
-    model = OpenAIModel("gpt-4o-2024-05-13", temperature=0.1)
+    model = OpenAIModel("gpt-4.1", temperature=0.1)
     parser = argparse.ArgumentParser()
     parser.add_argument("--num_shards", type=int, default=1)
     parser.add_argument("--shard_idx", type=int, default=0)
     parser.add_argument("--model_to_check", nargs="+", default=[])
     parser.add_argument("--tag", type=str, default="v1")
+    parser.add_argument("--output_path", type=str, default="output")
     args = parser.parse_args()
     num_shards = args.num_shards
     shard_idx = args.shard_idx
@@ -118,9 +119,9 @@ if __name__ == "__main__":
         model_to_check = args.model_to_check
     else:
         # all models
-        model_to_check = ['gpt-4-0125-preview','gpt-4o-mini-2024-07-18','gpt-4o-2024-05-13','gpt-4o-2024-08-06','claude-3-5-sonnet-20240620','gemini-1.5-flash-001','gemini-1.5-pro-001','Llama-2-7B-32K','Llama-2-7B-32K-Instruct','llama-2-7b-80k','Yarn-Llama-2-7b-64k','Yarn-Llama-2-7b-128k','Meta-Llama-3-8B','Meta-Llama-3-8B-Instruct','Meta-Llama-3-8B-Theta16M','Meta-Llama-3-8B-Instruct-Theta16M','Meta-Llama-3-70B-Theta16M','Meta-Llama-3-70B-Instruct-Theta16M','Llama-3.1-8B','Llama-3.1-8B-Instruct','Llama-3.1-70B','Llama-3.1-70B-Instruct','Llama-3.3-70B-Instruct','Llama-3.2-1B','Llama-3.2-1B-Instruct','Llama-3.2-3B','Llama-3.2-3B-Instruct','Mistral-7B-v0.1','Mistral-7B-Instruct-v0.1','Mistral-7B-Instruct-v0.2','Mistral-7B-v0.3','Mistral-7B-Instruct-v0.3','Ministral-8B-Instruct-2410','Mistral-Nemo-Base-2407','Mistral-Nemo-Instruct-2407','MegaBeam-Mistral-7B-512k','Yi-6B-200K','Yi-9B-200K','Yi-34B-200K','Yi-1.5-9B-32K','Phi-3-mini-128k-instruct','Phi-3-small-128k-instruct','Phi-3-medium-128k-instruct','Phi-3.5-mini-instruct','Qwen2-7B','Qwen2-7B-Instruct','Qwen2-57B-A14B','Qwen2-57B-A14B-Instruct','Qwen2.5-1.5B','Qwen2.5-1.5B-Instruct','Qwen2.5-3B','Qwen2.5-3B-Instruct','Qwen2.5-7B','Qwen2.5-7B-Instruct','Qwen2.5-7B-Instruct-1M','Qwen2.5-14B-Instruct-1M','Qwen2.5-72B-Instruct','Llama-3-8B-ProLong-512k-Instruct','gemma-2-9b','gemma-2-9b-it','gemma-2-9b-it-Theta320K','gemma-2-27b','gemma-2-27b-it','gemma-2-27b-it-Theta320K','c4ai-command-r-v01','Jamba-v0.1','AI21-Jamba-1.5-Mini', "DeepSeek-R1-Distill-Llama-8B", "DeepSeek-R1-Distill-Qwen-7B"]
+        model_to_check = ["Llama-3.3-70B-Instruct"]
 
-    all_paths = [glob.glob(f"output/{m}/narrativeqa_*_{args.tag}_*.json") for m in model_to_check]
+    all_paths = [glob.glob(f"{args.output_path}/{m}/narrativeqa_*_{args.tag}_*.json") for m in model_to_check]
     all_paths = [item for sublist in all_paths for item in sublist]
     all_paths = [p for p in all_paths if not os.path.exists(p.replace(".json", "-gpt4eval_o.json"))]
     all_paths = [p for p in all_paths if not p.endswith("-gpt4eval_o.json")]

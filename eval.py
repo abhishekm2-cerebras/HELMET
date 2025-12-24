@@ -71,8 +71,8 @@ def run_test(args, model, dataset, test_file, demo_file):
         args.input_max_length += 32768
         model.max_length = args.input_max_length
         model.generation_max_length = args.generation_max_length
-        args.stop_newline = False
-        logger.info(f"thinking mode, adding 32k tokens to generation and input max length, also disabling stop_newline")
+        args.stop_new_line = False
+        logger.info("thinking mode, adding 32k tokens to generation and input max length, also disabling stop_new_line")
 
     logger.info("Running generation...")
     start_time = time.time()
@@ -190,6 +190,22 @@ def main():
     datasets = args.datasets.split(",")
     test_files = args.test_files.split(",")
     demo_files = args.demo_files.split(",")
+
+    def _prepend_data_root(path: str) -> str:
+        if path is None:
+            return path
+        path = path.strip()
+        if path == "":
+            return path
+        if args.data_root is None or str(args.data_root).strip() == "":
+            return path
+        # Only prepend to relative paths; keep absolute paths as-is.
+        if os.path.isabs(path):
+            return path
+        return os.path.normpath(os.path.join(args.data_root, path))
+
+    test_files = [_prepend_data_root(p) for p in test_files]
+    demo_files = [_prepend_data_root(p) for p in demo_files]
     max_lengths = ([int(args.input_max_length)] * len(datasets)) if isinstance(args.input_max_length, int) or len(args.input_max_length.split(",")) == 1 else [int(l) for l in args.input_max_length.split(",")]
     gen_lengths = ([int(args.generation_max_length)] * len(datasets)) if isinstance(args.generation_max_length, int) or len(args.generation_max_length.split(",")) == 1 else [int(l) for l in args.generation_max_length.split(",")]
     assert len(test_files) == len(demo_files)
