@@ -175,3 +175,6 @@ slurm
 gty*
 
 slurm_outputs/
+
+scripts/run_eval_slurm.sh
+scripts/run_short_slurm.sh

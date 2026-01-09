@@ -12,6 +12,12 @@ PYTHON_SCRIPT="eval_alce.py"
 
 for filepath in "$TARGET_DIR"/alce*.json; do
   echo "Executing for: $filepath"
-  python "$PYTHON_SCRIPT" --f "$filepath"
+  # Compute citation metrics (AutoAIS) for citation-enabled runs.
+  # Note: *_nocite_* datasets intentionally do not include citations.
+  if [[ "$filepath" == *"nocite"* ]]; then
+    python "$PYTHON_SCRIPT" --f "$filepath"
+  else
+    python "$PYTHON_SCRIPT" --f "$filepath" --citations
+  fi
 done
 

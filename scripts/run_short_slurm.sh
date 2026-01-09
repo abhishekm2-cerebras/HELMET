@@ -11,7 +11,7 @@
 #SBATCH --ntasks-per-node=4
 #SBATCH --job-name=helmet_short
 #SBATCH --cpus-per-task=16
-#SBATCH --gres=gpu:4
+#SBATCH --gres=gpu:2
 #SBATCH -p gpumid
 #SBATCH --mail-user=abhishek.maiti@mbzuai.ac.ae
 #SBATCH --mail-type=END
@@ -31,8 +31,9 @@ echo "Cache                          = $TRANSFORMERS_CACHE"
 
 source /home/abhishek.maiti/venvs/helmet/bin/activate
 
+source .env
+
 export HF_HOME="/lustre/scratch/users/abhishek.maiti/hf_cache"
-export OPENAI_API_KEY="xxx"
 
 PORT=$(shuf -i 30000-65000 -n 1)
 echo "Port                          = $PORT"
@@ -41,7 +42,8 @@ export OMP_NUM_THREADS=8
 
 TAG=v1
 
-CONFIGS=(recall_short.yaml rag_short.yaml longqa_short.yaml summ_short.yaml icl_short.yaml rerank_short.yaml cite_short.yaml)
+CONFIGS=(recall_short.yaml rag_short.yaml longqa_short.yaml summ_short.yaml icl_short.yaml rerank_short.yaml cite_short.yaml alce_nocite_short.yaml)
+# CONFIGS=(alce_nocite_short.yaml )
 #CONFIGS=(${CONFIGS[8]})
 SEED=42
 RESULTS_DIR="/lustre/scratch/users/abhishek.maiti/HELMET_results"
@@ -49,8 +51,8 @@ RESULTS_DIR="/lustre/scratch/users/abhishek.maiti/HELMET_results"
 
 
 
-MODEL_NAME="/lustre/scratch/users/abhishek.maiti/hf_ckpts/LC_8B_SFT_baseline_251113_reasoning_added_9212/checkpoint_9212_to_hf" # CHANGE PATH HERE or you can change the array to load from HF
-MNAME=LC_8B_SFT_baseline_251113_reasoning_added_9212
+MODEL_NAME="/lustre/scratch/users/ahmed.frikha/ckpts/LC_8B_SFT_baseline_251213_MT_3X_mz2p7/hf/checkpoint_10915_to_hf" # CHANGE PATH HERE or you can change the array to load from HF
+MNAME=LC_8B_SFT_baseline_251213_MT_3X_mz2p7_10915
 OUTPUT_DIR="$RESULTS_DIR/$MNAME"
 
 OPTIONS=""
@@ -81,10 +83,12 @@ echo "finished with $?"
 wait;
 
 python scripts/eval_gpt4_longqa.py --output_path $RESULTS_DIR --model_to_check $MNAME &
-python scripts/eval_gpt4_summ.py --output_path $RESULTS_DIR --model_to_check $MNAME &
+python scripts/eval_gpt4_summ.py --output_path $RESULTS_DIR --model_to_check $MNAME --data_root /lustre/scratch/users/abhishek.maiti/HELMET_data/data &
 
 bash scripts/run_alce.sh $OUTPUT_DIR &
 wait;
+
+python scripts/collect_results.py --model $MNAME --output_dir $OUTPUT_DIR --tag $TAG --training_length 65536
 
 echo "finished with $?"
 

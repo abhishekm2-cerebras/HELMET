@@ -1,5 +1,6 @@
 import os
 import json
+import argparse
 import numpy as np
 import pandas as pd
 import yaml
@@ -160,118 +161,57 @@ class arguments:
         return dfs.to_dict("records")
 
 if __name__ == "__main__":
-    # comment out the models you don't want to include, or add the new ones 
+    parser = argparse.ArgumentParser(description="Collect HELMET results across datasets and emit a single CSV row per model.")
+    parser.add_argument("--model", required=True, help="Model name (must match the output folder name under output_dir).")
+    parser.add_argument("--training_length", type=int, required=True, help="Training length (context length) for the model.")
+    parser.add_argument(
+        "--output_dir",
+        default=None,
+        help="Directory containing this model's outputs. Defaults to output/<model>.",
+    )
+    parser.add_argument("--tag", default="v1", help="Tag used in output filenames (default: v1).")
+    parser.add_argument(
+        "--use_chat_template",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Whether this model was run with chat templates enabled (default: True).",
+    )
+    parser.add_argument(
+        "--config_files",
+        nargs="*",
+        default=[
+            # "configs/recall.yaml",
+            "configs/recall_short.yaml",
+            # "configs/rag.yaml",
+            "configs/rag_short.yaml",
+            # "configs/longqa.yaml",
+            "configs/longqa_short.yaml",
+            # "configs/summ.yaml",
+            "configs/summ_short.yaml",
+            # "configs/rerank.yaml",
+            "configs/rerank_short.yaml",
+            # "configs/icl.yaml",
+            "configs/icl_short.yaml",
+            # "configs/cite.yaml",
+            "configs/cite_short.yaml",
+            # "configs/ruler.yaml",
+            "configs/ruler_short.yaml",
+        ],
+        help="Config YAMLs to load (defaults to the full suite).",
+    )
+    cli_args = parser.parse_args()
+
+    # Single model config from CLI (kept as a list to preserve downstream logic)
     models_configs = [
-        {"model": "gpt-4-0125-preview", "use_chat_template": True, "training_length": 128000},
-        {"model": "gpt-4o-mini-2024-07-18", "use_chat_template": True, "training_length": 128000},
-        {"model": "gpt-4o-2024-05-13", "use_chat_template": True, "training_length": 128000},
-        {"model": "gpt-4o-2024-08-06", "use_chat_template": True, "training_length": 128000},
-        {"model": "claude-3-5-sonnet-20240620", "use_chat_template": True, "training_length": 200000},
-        {"model": "gemini-1.5-flash-001", "use_chat_template": True, "training_length": 1048576},
-        {"model": "gemini-1.5-pro-001", "use_chat_template": True, "training_length": 2097152},
-
-        # llama 2 based models
-        {"model": "Llama-2-7B-32K", "use_chat_template": False, "training_length": 32768},
-        {"model": "Llama-2-7B-32K-Instruct", "training_length": 32768},
-        {"model": "llama-2-7b-80k", "use_chat_template": False, "training_length": 80000},
-        {"model": "Yarn-Llama-2-7b-64k", "use_chat_template": False, "training_length": 65536},
-        {"model": "Yarn-Llama-2-7b-128k", "use_chat_template": False, "training_length": 131072},
-        
-        # llama 3 models
-        {"model": "Meta-Llama-3-8B", "use_chat_template": False, "training_length": 8192},
-        {"model": "Meta-Llama-3-8B-Instruct", "training_length": 8192},
-        {"model": "Meta-Llama-3-8B-Theta16M", "use_chat_template": False, "training_length": 8192},
-        {"model": "Meta-Llama-3-8B-Instruct-Theta16M", "training_length": 8192},
-        {"model": "Meta-Llama-3-70B-Theta16M", "use_chat_template": False, "training_length": 8192},
-        {"model": "Meta-Llama-3-70B-Instruct-Theta16M", "training_length": 8192},
-        
-        {"model": "Llama-3.1-8B", "use_chat_template": False, "training_length": 131072},
-        {"model": "Llama-3.1-8B-Instruct", "training_length": 131072},
-        {"model": "Llama-3.1-70B", "use_chat_template": False, "training_length": 131072},
-        {"model": "Llama-3.1-70B-Instruct", "training_length": 131072},
-        {"model": "Llama-3.3-70B-Instruct", "training_length": 131072},
-        
-        {"model": "Llama-3.2-1B", "use_chat_template": False, "training_length": 131072},
-        {"model": "Llama-3.2-1B-Instruct", "training_length": 131072},
-        {"model": "Llama-3.2-3B", "use_chat_template": False, "training_length": 131072},
-        {"model": "Llama-3.2-3B-Instruct", "training_length": 131072},
-        
-        # mistral models
-        {"model": "Mistral-7B-v0.1", "use_chat_template": False, "training_length": 8192},
-        {"model": "Mistral-7B-Instruct-v0.1", "training_length": 8192},
-        {"model": "Mistral-7B-Instruct-v0.2", "training_length": 32768},
-        {"model": "Mistral-7B-v0.3", "use_chat_template": False, "training_length": 32768},
-        {"model": "Mistral-7B-Instruct-v0.3", "training_length": 32768},
-        {"model": "Ministral-8B-Instruct-2410", "training_length": 131072},
-        
-        {"model": "Mistral-Nemo-Base-2407", "use_chat_template": False, "training_length": 128000},
-        {"model": "Mistral-Nemo-Instruct-2407", "training_length": 128000},
-        {"model": "MegaBeam-Mistral-7B-512k", "training_length": 524288},
-        
-        # yi models
-        {"model": "Yi-6B-200K", "use_chat_template": False, "training_length": 200000},
-        {"model": "Yi-9B-200K", "use_chat_template": False, "training_length": 200000},
-        {"model": "Yi-34B-200K", "use_chat_template": False, "training_length": 200000},
-        {"model": "Yi-1.5-9B-32K", "use_chat_template": False, "training_length": 32768},
-        
-        # phi models
-        {"model": "Phi-3-mini-128k-instruct", "training_length": 131072},
-        {"model": "Phi-3-small-128k-instruct", "training_length": 131072},
-        {"model": "Phi-3-medium-128k-instruct", "training_length": 131072},
-        {"model": "Phi-3.5-mini-instruct", "training_length": 131072},
-        
-        # qwen models
-        {"model": "Qwen2-7B", "use_chat_template": False, "training_length": 32768},
-        {"model": "Qwen2-7B-Instruct", "training_length": 32768},
-        {"model": "Qwen2-57B-A14B", "use_chat_template": False, "training_length": 32768},
-        {"model": "Qwen2-57B-A14B-Instruct", "training_length": 32768},
-        {"model": "Qwen2.5-1.5B", "use_chat_template": False, "training_length": 32768},
-        {"model": "Qwen2.5-1.5B-Instruct", "training_length": 32768},
-        {"model": "Qwen2.5-3B", "use_chat_template": False, "training_length": 32768},
-        {"model": "Qwen2.5-3B-Instruct", "training_length": 32768},
-        {"model": "Qwen2.5-7B", "use_chat_template": False, "training_length": 131072},
-        {"model": "Qwen2.5-7B-Instruct", "training_length": 131072},
-        {"model": "Qwen2.5-72B-Instruct", "training_length": 131072},
-        
-        # prolong
-        {"model": "Llama-3-8B-ProLong-512k-Instruct", "training_length": 524288},
-        
-        # gemma 2 models
-        {"model": "gemma-2-9b", "use_chat_template": False, "training_length": 8192},
-        {"model": "gemma-2-9b-it", "training_length": 8192},
-        {"model": "gemma-2-9b-it-Theta320K", "training_length": 8192},
-
-        {"model": "gemma-2-27b", "use_chat_template": False, "training_length": 8192},
-        {"model": "gemma-2-27b-it", "training_length": 8192},
-        {"model": "gemma-2-27b-it-Theta320K", "training_length": 8192},
-        
-        # others
-        {"model": "c4ai-command-r-v01", "training_length": 131072},
-        {"model": "Jamba-v0.1", "use_chat_template": False, "training_length": 262144},
-        {"model": "AI21-Jamba-1.5-Mini", "training_length": 262144},
-    ]
-
-    
-    models_configs = [
-            {"model": "Llama-3.1-8B", "use_chat_template": False, "training_length": 131072},
-            {"model": "Llama-3.1-8B-Instruct", "training_length": 131072},
-            {"model": "DeepSeek-R1-Distill-Llama-8B", "training_length": 131072, "do_sample": True, "temperature": 0.6},
-            {"model": "Qwen2-7B", "use_chat_template": False, "training_length": 32768},
-            {"model": "Qwen2-7B-Instruct", "training_length": 32768},
-            {"model": "DeepSeek-R1-Distill-Qwen-7B", "training_length": 131072, "do_sample": True, "temperature": 0.6},
+        {
+            "model": cli_args.model,
+            "use_chat_template": cli_args.use_chat_template,
+            "training_length": cli_args.training_length,
+        }
     ]
 
     # set your configs here, only include the ones that you ran
-    config_files = [
-        "configs/recall.yaml", "configs/recall_short.yaml", 
-        "configs/rag.yaml", "configs/rag_short.yaml", 
-        "configs/longqa.yaml", "configs/longqa_short.yaml", 
-        "configs/summ.yaml", "configs/summ_short.yaml", 
-        "configs/rerank.yaml", "configs/rerank_short.yaml", 
-        "configs/icl.yaml", "configs/icl_short.yaml", 
-        "configs/cite.yaml", "configs/cite_short.yaml", 
-        "configs/ruler.yaml", "configs/ruler_short.yaml", 
-    ]
+    config_files = cli_args.config_files
 
     dataset_configs = []
     for file in config_files:
@@ -287,12 +227,12 @@ if __name__ == "__main__":
     df = []
     for model in tqdm(models_configs):
         args = arguments()
-        args.tag = "v1" # SET YOUR TAG HERE
-        args.output_dir = f"output/{model['model']}"
+        args.tag = cli_args.tag
+        args.output_dir = cli_args.output_dir or f"output/{model['model']}"
     
         for dataset in dataset_configs:
-            args.update(dataset)
             args.update(model)
+            args.update(dataset)
 
             metric = args.get_averaged_metric()
             dsimple, mnames = args.get_metric_name()
@@ -315,6 +255,10 @@ if __name__ == "__main__":
         lf_df[k] = lf_df[v].mean(axis=1)
 
     print(lf_df.to_csv(index=False))
+
+    results_csv_path = os.path.join(cli_args.output_dir or "output", f"{model['model']}_results.csv")
+    lf_df.to_csv(results_csv_path, index=False)
+    print(f"Results saved to {results_csv_path}")
 
     print("Warning, failed to get the following paths, make sure that these are correct or the printed results will not be accurate:", failed_paths)
     # import pdb; pdb.set_trace()

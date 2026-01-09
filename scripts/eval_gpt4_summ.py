@@ -1,6 +1,8 @@
+
 import argparse
 import json
 import os
+import os.path as osp
 import sys
 import re
 from tqdm import tqdm
@@ -341,18 +343,18 @@ def parse_json(text):
         return json.loads(matches[-1])
     return None
 
-def check_metrics(model, results_file, output_file):
+def check_metrics(model, results_file, output_file, data_root):
     with open(results_file, "r") as f:
         results = json.load(f)
 
     keypoints = {}
     if "infbench" in results_file:
-        with open("data/infbench/longbook_sum_eng_keypoints.jsonl") as f:
+        with open(osp.join(data_root, "infbench/longbook_sum_eng_keypoints.jsonl")) as f:
             for line in f:
                 d = json.loads(line)
                 keypoints[d["id"]] = d["keypoints"]
     else:
-        with open("data/multi_lexsum/multi_lexsum_val.jsonl") as f:
+        with open(osp.join(data_root, "multi_lexsum/multi_lexsum_val.jsonl")) as f:
             for line in f:
                 d = json.loads(line)
                 keypoints[d["id"]] = d["summary/short_keypoints"]
@@ -436,6 +438,7 @@ if __name__ == "__main__":
     parser.add_argument("--model_to_check", nargs="+", default=[])
     parser.add_argument("--tag", type=str, default="v1")
     parser.add_argument("--output_path", type=str, default="output")
+    parser.add_argument("--data_root", type=str, default="data")
     args = parser.parse_args()
     num_shards = args.num_shards
     shard_idx = args.shard_idx
@@ -458,4 +461,4 @@ if __name__ == "__main__":
         print(p)
         newp = p.replace(".json", "-gpt4eval_o.json")
         print("evaluating")
-        check_metrics(model, p, newp)
+        check_metrics(model, p, newp, args.data_root)

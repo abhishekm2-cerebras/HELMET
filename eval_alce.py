@@ -503,6 +503,21 @@ def main(args=None):
         data_with_config = json.load(f)
     data = data_with_config['data']
 
+    # Footgun guard: `citation_rec`/`citation_prec` are only computed when `--citations` is set.
+    # Many ALCE outputs do contain `docs` and bracket citations, so warn loudly if the flag is missing.
+    if not args.citations:
+        try:
+            has_docs = any(("docs" in item) and (item["docs"] is not None) and (len(item["docs"]) > 0) for item in data)
+            has_bracket_cites = any(("output" in item) and (re.search(r"\[\d+\]", item["output"] or "") is not None) for item in data)
+        except Exception:
+            has_docs, has_bracket_cites = False, False
+        if has_docs and has_bracket_cites and ("nocite" not in str(args.f)):
+            logger.warning(
+                "Detected `docs` and bracket citations in outputs, but `--citations` was NOT provided. "
+                "Skipping AutoAIS, so `citation_rec`/`citation_prec` will be missing. "
+                "Re-run with: `python eval_alce.py --f <file> --citations`."
+            )
+
     if "qampari" in args.f:
         args.no_rouge = True
         args.qa = False
