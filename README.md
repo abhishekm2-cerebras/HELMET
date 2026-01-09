@@ -20,11 +20,74 @@ This repo also supports [LongProc](https://princeton-pli.github.io/LongProc/), o
 Please see [longproc_addon](longproc_addon/README.md) to see how to run the evaluation.
 The overall structure is the same as HELMET, but uses additional data, configs, and evaluation metrics.
 
+## Running evaluation on Slurm (using the provided scripts)
+
+We provide two Slurm scripts that run the full HELMET suite end-to-end (run tasks → run GPT-4 evals for LongQA/Summ → run ALCE eval → collect results):
+
+- `scripts/run_eval_slurm.sh`: “long” configs (e.g., 128K-style configs such as `recall.yaml`, `rag.yaml`, …).
+- `scripts/run_short_slurm.sh`: “short” configs (e.g., 8K–64K configs such as `recall_short.yaml`, `rag_short.yaml`, …).
+
+### What you typically need to change
+
+In **both** `scripts/run_eval_slurm.sh` and `scripts/run_short_slurm.sh`:
+
+- **Slurm resources / account** (top of file):
+  - `#SBATCH --account=...`
+  - `#SBATCH -p ...` (partition/queue)
+  - `#SBATCH --gres=gpu:...`, `#SBATCH --cpus-per-task=...`, `#SBATCH --time=...`, etc.
+  - Optional: `#SBATCH --mail-user=...`
+- **Python environment**:
+  - `source /path/to/your/venv/bin/activate`
+- **Secrets / API keys (optional)**:
+  - `source .env` (ensure your `.env` exists and has the variables you need; you need to place the open-ai key here)
+- **HF cache location**:
+  - `export HF_HOME="..."`
+- **Where results go**:
+  - `RESULTS_DIR="..."`
+  - `OUTPUT_DIR="$RESULTS_DIR/$MNAME"`
+- **Model to evaluate**:
+  - `MODEL_NAME="..."` (either a local path or a Hugging Face model name)
+  - `MNAME="..."` (a short identifier used for output folder naming)
+- **Which tasks/configs to run**:
+  - `CONFIGS=(...)` (comment out and keep only one if you want to run a single task/config)
+- **Dataset location**:
+  - `--data_root ...` inside the `python eval.py ...` call
+
+Also note the final aggregation step differs by script:
+
+- `scripts/run_eval_slurm.sh` ends with `--training_length 131072`
+- `scripts/run_short_slurm.sh` ends with `--training_length 65536`
+
+Adjust this if your training/eval context length differs.
+
+### How to run
+
+From the repo root:
+
+```bash
+# Make sure the log directory exists (these scripts write to slurm_outputs/)
+mkdir -p slurm_outputs
+
+# Long configs (e.g., 128K-style)
+sbatch scripts/run_eval_slurm.sh
+
+# Short configs (e.g., 8K–64K)
+sbatch scripts/run_short_slurm.sh
+```
+
+If you want to run the same scripts **without Slurm** (e.g., on a single machine), you can run them with `bash` instead of `sbatch` (you may want to remove/ignore the `#SBATCH ...` lines and tailor GPU resources accordingly):
+
+```bash
+bash scripts/run_eval_slurm.sh
+bash scripts/run_short_slurm.sh
+```
+
 
 ## Quick Links
 
 - [Setup](#setup)
 - [Data](#data)
+- [Running evaluation on Slurm (using the provided scripts)](#running-evaluation-on-slurm-using-the-provided-scripts)
 - [Running evaluation](#running-evaluation)
 - [Adding new tasks](#adding-new-tasks)
 - [Adding new models](#adding-new-models)
