@@ -75,6 +75,7 @@ for CONFIG in "${CONFIGS[@]}"; do
         --tag $TAG \
         --model_name_or_path $MODEL_NAME \
         --data_root /lustre/scratch/users/abhishek.maiti/HELMET_data \
+        --use_vllm \
         $OPTIONS
 done
 
