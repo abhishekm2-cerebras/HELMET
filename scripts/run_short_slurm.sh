@@ -43,7 +43,7 @@ export OMP_NUM_THREADS=8
 TAG=v1
 
 CONFIGS=(recall_short.yaml rag_short.yaml longqa_short.yaml summ_short.yaml icl_short.yaml rerank_short.yaml cite_short.yaml alce_nocite_short.yaml)
-# CONFIGS=(alce_nocite_short.yaml )
+# CONFIGS=(longqa_short.yaml )
 #CONFIGS=(${CONFIGS[8]})
 SEED=42
 RESULTS_DIR="/lustre/scratch/users/abhishek.maiti/HELMET_results"
@@ -75,7 +75,6 @@ for CONFIG in "${CONFIGS[@]}"; do
         --tag $TAG \
         --model_name_or_path $MODEL_NAME \
         --data_root /lustre/scratch/users/abhishek.maiti/HELMET_data \
-        --use_vllm \
         $OPTIONS
 done
 

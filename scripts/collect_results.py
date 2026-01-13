@@ -180,21 +180,21 @@ if __name__ == "__main__":
         "--config_files",
         nargs="*",
         default=[
-            # "configs/recall.yaml",
+            "configs/recall.yaml",
             "configs/recall_short.yaml",
-            # "configs/rag.yaml",
+            "configs/rag.yaml",
             "configs/rag_short.yaml",
-            # "configs/longqa.yaml",
+            "configs/longqa.yaml",
             "configs/longqa_short.yaml",
-            # "configs/summ.yaml",
+            "configs/summ.yaml",
             "configs/summ_short.yaml",
-            # "configs/rerank.yaml",
+            "configs/rerank.yaml",
             "configs/rerank_short.yaml",
-            # "configs/icl.yaml",
+            "configs/icl.yaml",
             "configs/icl_short.yaml",
-            # "configs/cite.yaml",
+            "configs/cite.yaml",
             "configs/cite_short.yaml",
-            # "configs/ruler.yaml",
+            "configs/ruler.yaml",
             "configs/ruler_short.yaml",
         ],
         help="Config YAMLs to load (defaults to the full suite).",
@@ -209,6 +209,15 @@ if __name__ == "__main__":
             "training_length": cli_args.training_length,
         }
     ]
+
+    # check if training length is less than or equal to 65536 then use only configs which has "short" in the name
+    if cli_args.training_length <= 65536:
+        print("using short configs")
+        cli_args.config_files = [file for file in cli_args.config_files if "short" in file]
+    else:
+        print("using long configs")
+        cli_args.config_files = [file for file in cli_args.config_files if not "short" in file]
+
 
     # set your configs here, only include the ones that you ran
     config_files = cli_args.config_files
@@ -260,5 +269,12 @@ if __name__ == "__main__":
     lf_df.to_csv(results_csv_path, index=False)
     print(f"Results saved to {results_csv_path}")
 
-    print("Warning, failed to get the following paths, make sure that these are correct or the printed results will not be accurate:", failed_paths)
+    # print average for all columns for columns in custom_avgs['Ours]
+    for col in custom_avgs['Ours']:
+        print(f"Average for {col}: {lf_df[col].mean():.02f}")
+    print(f"Average for \"Ours\": {lf_df['Ours'].mean():.02f}")
+    
+    print_paths = False
+    if print_paths:
+        print("Warning, failed to get the following paths, make sure that these are correct or the printed results will not be accurate:", failed_paths)
     # import pdb; pdb.set_trace()
