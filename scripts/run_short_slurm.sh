@@ -42,7 +42,7 @@ export OMP_NUM_THREADS=8
 
 TAG=v1
 
-CONFIGS=(recall_short.yaml rag_short.yaml longqa_short.yaml summ_short.yaml icl_short.yaml rerank_short.yaml cite_short.yaml alce_nocite_short.yaml)
+CONFIGS=(recall_short.yaml rag_short.yaml longqa_short.yaml summ_short.yaml icl_short.yaml rerank_short.yaml cite_short.yaml alce_nocite_short.yaml ruler_short.yaml )
 # CONFIGS=(longqa_short.yaml )
 #CONFIGS=(${CONFIGS[8]})
 SEED=42
@@ -51,8 +51,8 @@ RESULTS_DIR="/lustre/scratch/users/abhishek.maiti/HELMET_results"
 
 
 
-MODEL_NAME="/lustre/scratch/users/ahmed.frikha/ckpts/LC_8B_SFT_baseline_251213_MT_3X_mz2p7/hf/checkpoint_10915_to_hf" # CHANGE PATH HERE or you can change the array to load from HF
-MNAME=LC_8B_SFT_baseline_251213_MT_3X_mz2p7_10915
+MODEL_NAME="Qwen/Qwen3-8B" # CHANGE PATH HERE or you can change the array to load from HF
+MNAME=Qwen3-8B
 OUTPUT_DIR="$RESULTS_DIR/$MNAME"
 
 OPTIONS=""
@@ -88,7 +88,7 @@ python scripts/eval_gpt4_summ.py --output_path $RESULTS_DIR --model_to_check $MN
 bash scripts/run_alce.sh $OUTPUT_DIR &
 wait;
 
-python scripts/collect_results.py --model $MNAME --output_dir $OUTPUT_DIR --tag $TAG --training_length 65536
+python scripts/collect_results.py --model $MNAME --output_dir $OUTPUT_DIR --tag $TAG --training_length 40960
 
 echo "finished with $?"
 
