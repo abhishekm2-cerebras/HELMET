@@ -216,7 +216,7 @@ def load_narrativeqa(dataset, shots=0, max_samples=None, seed=42):
 
 
 def load_multi_lexsum(dataset, shots=0, max_samples=None, seed=42):
-    all_data = load_dataset("allenai/multi_lexsum", name="v20230518", trust_remote_code=True)
+    all_data = load_dataset("allenai/multi_lexsum", name="v20230518")
     all_data = all_data.filter(lambda x: x["summary/short"] is not None)
 
     user_template = "You are given the legal documents in a civil rights lawsuit, and you are tasked to summarize the case. Write a concise summary of one paragraph (200 to 250 words). The summary should contain a short description of the background, the parties involved, and the outcomes of the case.\n\n{demo}Legal documents:\n{context}\n\nNow please summarize the case."
@@ -343,22 +343,22 @@ def load_icl(dataset, max_test_sample=None, seed=42):
     shot = int(dataset.split("shot")[0].split("_")[-1])
 
     if "trec_fine" in dataset.lower():
-        train_data = load_dataset("CogComp/trec", trust_remote_code=True)["train"]
-        test_data = load_dataset("CogComp/trec", trust_remote_code=True)["test"]
+        train_data = load_dataset("CogComp/trec")["train"]
+        test_data = load_dataset("CogComp/trec")["test"]
         id2label = train_data.features['fine_label'].names
         text_field = "text"
         label_field = "fine_label"
         num_labels = 50
     elif "trec_coarse" in dataset.lower():
-        train_data = load_dataset("CogComp/trec", trust_remote_code=True)["train"]
-        test_data = load_dataset("CogComp/trec", trust_remote_code=True)["test"]
+        train_data = load_dataset("CogComp/trec")["train"]
+        test_data = load_dataset("CogComp/trec")["test"]
         id2label = train_data.features['coarse_label'].names
         text_field = "text"
         label_field = "coarse_label"
         num_labels = 6
     elif "banking77" in dataset.lower():
-        train_data = load_dataset("PolyAI/banking77", trust_remote_code=True)["train"]
-        test_data = load_dataset("PolyAI/banking77", trust_remote_code=True)["test"]
+        train_data = load_dataset("PolyAI/banking77")["train"]
+        test_data = load_dataset("PolyAI/banking77")["test"]
         id2label = train_data.features["label"].names
         id2label = {i: id2label[i] for i in range(len(id2label))}
         text_field = "text"
@@ -372,7 +372,7 @@ def load_icl(dataset, max_test_sample=None, seed=42):
         label_field = "intent"
         num_labels = 151
     elif "nlu" in dataset.lower():
-        data = load_dataset("xingkunliuxtracta/nlu_evaluation_data", trust_remote_code=True)["train"]
+        data = load_dataset("xingkunliuxtracta/nlu_evaluation_data")["train"]
         id2label = data.features["label"].names
         data = data.train_test_split(test_size=0.1, seed=seed)
         train_data = data["train"]

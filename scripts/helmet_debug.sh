@@ -42,9 +42,8 @@ export OMP_NUM_THREADS=8
 
 TAG=v1
 
-CONFIGS=(recall_short.yaml rag_short.yaml longqa_short.yaml summ_short.yaml icl_short.yaml rerank_short.yaml cite_short.yaml alce_nocite_short.yaml ruler_short.yaml )
-# CONFIGS=(summ_short.yaml icl_short.yaml )
-# CONFIGS=(longqa_short.yaml )
+# CONFIGS=(recall_short.yaml rag_short.yaml longqa_short.yaml summ_short.yaml icl_short.yaml rerank_short.yaml cite_short.yaml alce_nocite_short.yaml ruler_short.yaml )
+CONFIGS=(summ_short_debug.yaml )
 #CONFIGS=(${CONFIGS[8]})
 SEED=42
 RESULTS_DIR="/lustre/scratch/users/abhishek.maiti/HELMET_results"
@@ -57,7 +56,7 @@ MODEL_NAME="${1:-meta-llama/Llama-3.1-8B-Instruct}"
 MNAME="${2:-Llama-3.1-8B-Instruct}"
 OUTPUT_DIR="$RESULTS_DIR/$MNAME"
 
-OPTIONS="--use_vllm --use_chat_template False"
+OPTIONS=""
 shopt -s nocasematch
 echo $MNAME
 

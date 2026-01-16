@@ -42,19 +42,19 @@ export OMP_NUM_THREADS=8
 
 TAG=v1
 
-CONFIGS=(recall.yaml rag.yaml longqa.yaml summ.yaml icl.yaml rerank.yaml cite.yaml alce_nocite.yaml ruler.yaml)
-# CONFIGS=(longqa.yaml )
+CONFIGS=(recall.yaml rag.yaml longqa.yaml summ.yaml icl.yaml rerank.yaml cite.yaml alce_nocite.yaml ruler.yaml )
 SEED=42
 RESULTS_DIR="/lustre/scratch/users/abhishek.maiti/HELMET_results"
 
 
 
 
-MODEL_NAME="/lustre/scratch/users/ahmed.frikha/ckpts/LC_8B_SFT_baseline_251203_reasoning_added_c10816_128K" # CHANGE PATH HERE or you can change the array to load from HF
-MNAME=LC_8B_SFT_baseline_251203_reasoning_added_c10816_128K
+# Parse command line arguments (defaults if not provided)
+MODEL_NAME="${1:-meta-llama/Llama-3.1-8B-Instruct}"
+MNAME="${2:-Llama-3.1-8B-Instruct}"
 OUTPUT_DIR="$RESULTS_DIR/$MNAME"
 
-OPTIONS=""
+OPTIONS="--use_vllm"
 shopt -s nocasematch
 echo $MNAME
 

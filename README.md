@@ -22,6 +22,9 @@ The overall structure is the same as HELMET, but uses additional data, configs, 
 
 ## Running evaluation on Slurm (using the provided scripts)
 
+### Setup in MBZ Servers 
+For setup in MBZ servers, you can run `pip install -r mbz_requirements.txt` on your venv (with py3.11). After you have installed this, you have to install flash-attn using `pip install flash-attn==2.8.3 --no-build-isolation`.
+
 We provide two Slurm scripts that run the full HELMET suite end-to-end (run tasks → run GPT-4 evals for LongQA/Summ → run ALCE eval → collect results):
 
 - `scripts/run_eval_slurm.sh`: “long” configs (e.g., 128K-style configs such as `recall.yaml`, `rag.yaml`, …).
