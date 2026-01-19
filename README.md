@@ -23,7 +23,59 @@ The overall structure is the same as HELMET, but uses additional data, configs, 
 ## Running evaluation on Slurm (using the provided scripts)
 
 ### Setup in MBZ Servers 
-For setup in MBZ servers, you can run `pip install -r mbz_requirements.txt` on your venv (with py3.11). After you have installed this, you have to install flash-attn using `pip install flash-attn==2.8.3 --no-build-isolation`.
+To set up on MBZ servers, follow these steps:
+
+- **1. Install Requirements**
+  - Create and activate a Python 3.11 virtual environment.
+  - Run:
+    - ```bash
+      pip install -r mbz_requirements.txt
+      ```
+
+- **2. Install flash-attn**
+  - Install flash-attn (start with version 2.8.3):
+    - ```bash
+      pip install flash-attn==2.8.3 --no-build-isolation
+      ```
+  - If you encounter errors like `unknown symbol..` during evaluation, this is a flash-attn issue.
+    - Try another flash-attn version such as:
+      - `2.8.2`
+      - `2.7.4`
+      - `2.6.4`
+    - Use with torch version `2.6.0`
+
+- **3. Apply JaisPlus Changes (required for now)**
+  - Update `transformers` and `vllm` for JaisPlus compatibility.
+  - Follow the instructions here:  
+    [Jais-family-evals: vllm and transformers changes](https://github.com/abhishekm2-cerebras/jais-family-evals?tab=readme-ov-file#4-apply-vllm-and-transformers-changes)
+  - *(We will move to Jais2 official release soon; for now, use JaisPlus.)*
+
+- **4. Configure Environment**
+  - In your project root, create a `.env` file containing your OpenAI API key, e.g.:
+    - ```
+      export OPENAPI_API_KEY="xxx"
+      ```
+  - Make sure a directory named `slurm_outputs` exists in your project root (all outputs will be stored here).
+
+- **5. First Run Preparation**
+  - For your initial run, start a Slurm bash session rather than submitting a Slurm job directly.
+    - Inside the session, run:
+      - ```
+        bash scripts/run_short_slurm.sh <MODEL_PATH> <MODEL_NAME>
+        ```
+    - Update the `RESULTS_DIR` variable in the script to your desired directory.
+    - Make sure to update the venv activation line at the start of the bash script to source your own virtual environment.
+    - The first run involves several moving parts; it’s recommended to monitor it carefully.
+
+- **6. If Using CPT Checkpoints**
+  - Instead of `scripts/run_short_slurm.sh`, run:
+    - ```
+      scripts/run_short_cpt_slurm.sh
+      ```
+
+> NOTE: You can find more about what each variable in slurm script does, in the below section. And change them accordingly. 
+
+### Slurm Script Variables
 
 We provide two Slurm scripts that run the full HELMET suite end-to-end (run tasks → run GPT-4 evals for LongQA/Summ → run ALCE eval → collect results):
 
