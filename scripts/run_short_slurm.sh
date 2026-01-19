@@ -57,7 +57,7 @@ MODEL_NAME="${1:-meta-llama/Llama-3.1-8B-Instruct}"
 MNAME="${2:-Llama-3.1-8B-Instruct}"
 OUTPUT_DIR="$RESULTS_DIR/$MNAME"
 
-OPTIONS="--use_vllm --use_chat_template False"
+OPTIONS="--use_vllm"
 shopt -s nocasematch
 echo $MNAME
 
