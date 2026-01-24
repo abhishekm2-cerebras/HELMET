@@ -90,7 +90,7 @@ python scripts/eval_gpt4_summ.py --output_path $RESULTS_DIR --model_to_check $MN
 bash scripts/run_alce.sh $OUTPUT_DIR &
 wait;
 
-python scripts/collect_results.py --model $MNAME --output_dir $OUTPUT_DIR --tag $TAG --training_length 65536 --no_use_chat_template
+python scripts/collect_results.py --model $MNAME --output_dir $OUTPUT_DIR --tag $TAG --training_length 65536 --no-use_chat_template
 
 echo "finished with $?"
 

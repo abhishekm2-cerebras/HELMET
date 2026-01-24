@@ -240,8 +240,8 @@ if __name__ == "__main__":
         args.output_dir = cli_args.output_dir or f"output/{model['model']}"
     
         for dataset in dataset_configs:
-            args.update(model)
             args.update(dataset)
+            args.update(model)
 
             metric = args.get_averaged_metric()
             dsimple, mnames = args.get_metric_name()
