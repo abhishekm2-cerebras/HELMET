@@ -15,8 +15,8 @@
 #SBATCH -p gpumid
 #SBATCH --mail-user=abhishek.maiti@mbzuai.ac.ae
 #SBATCH --mail-type=END
-#SBATCH --output=slurm_outputs/slurm-%j-%x.out
-#SBATCH --error=slurm_outputs/slurm-%j-%x.err 
+#SBATCH --output=/home/abhishek.maiti/projects/abhishekm2-cerebras/jais-family-evals/slurm_outputs/slurm-%j-%x.out
+#SBATCH --error=/home/abhishek.maiti/projects/abhishekm2-cerebras/jais-family-evals/slurm_outputs/slurm-%j-%x.err 
 
 echo "Date              = $(date)"
 echo "Hostname          = $(hostname -s)"

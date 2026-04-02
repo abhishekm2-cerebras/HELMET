@@ -23,6 +23,8 @@ def parse_arguments():
     parser.add_argument("--use_tgi_serving", action="store_true", help="whether to use tgi serving engine")
     parser.add_argument("--endpoint_url", type=str,default="http://localhost:8080/v1/", help="endpoint url for tgi or vllm serving engine")
     parser.add_argument("--api_key", type=str, default="EMPTY", help="api key for model endpoint")
+    parser.add_argument("--tensor_parallel_size", type=int, default=None,
+        help="Override tensor_parallel_size for vLLM (default: auto-detect GPU count)")
 
     # data settings
     parser.add_argument("--datasets", type=str, default=None, help="comma separated list of dataset names")
